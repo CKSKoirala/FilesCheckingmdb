@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
-
 import arcpy
 import os
 import csv
 import codecs
 import Tkinter as tk
 import tkFileDialog
-
 
 class App(tk.Frame):
     def __init__(self, master):
@@ -42,7 +39,8 @@ class App(tk.Frame):
 
         # Instructions Text
         instructions = (
-
+            "1. Select the folder containing MDB files with a 'Parcel' feature class.\n"
+            "2. The script will check for duplicate parcels and ignore those with 'ParcelNo' = 0 or parcels that are not touching each other."
         )
         self.instruction_text = tk.Label(self, text=instructions, justify="left", font=("Arial", 9), fg="black")
         self.instruction_text.grid(row=3, column=0, columnspan=3, padx=5, pady=5, sticky="w")
@@ -96,6 +94,9 @@ class App(tk.Frame):
                     with arcpy.da.SearchCursor(frequency_table, ["PARCELNO", "FREQUENCY"]) as cursor:
                         for row in cursor:
                             parcel_no, frequency = row
+                            # Skip parcel number 0
+                            if parcel_no == 0:
+                                continue
                             if frequency > 1:
                                 csv_writer.writerow([full_fc_path, parcel_no, frequency])
 

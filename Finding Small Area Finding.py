@@ -6,9 +6,24 @@ import codecs
 import Tkinter as tk
 import tkMessageBox
 
+def find_mdb_files(directory,exception):
+
+    mdb_files = []
+    # Get all .mdb files
+    for root, dirnames, filenames in os.walk(directory):
+        if any(x in root.lower() for x in exception):  # To detect and skip file/trig folder
+            break
+        [dirnames.remove(d) for d in dirnames if any(x in os.path.join(root, d).lower() for x in
+                                                     exception)]  # To skip file if they contain file/trig in absolute path
+        for filename in filenames:
+            if filename.endswith('.mdb'):
+                mdb_files.append(os.path.join(root, filename))
+    return mdb_files
+
 # Function to process .mdb files
 def process_mdb_files():
     folder_path = folder_path_entry.get().strip()
+    exception = ["merged"]
 
     if not folder_path or not os.path.isdir(folder_path):
         tkMessageBox.showerror("Error", "Invalid or empty directory! Please enter a valid path.")
@@ -16,9 +31,9 @@ def process_mdb_files():
 
     output_csv = os.path.join(folder_path, "parcels_less_than_2.5M_report.csv")
     parcel_files = []
-
     # Get all .mdb files
-    mdb_files = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.endswith(".mdb")]
+
+    mdb_files = find_mdb_files(folder_path,exception)
 
     for mdb in mdb_files:
         arcpy.env.workspace = mdb

@@ -6,6 +6,21 @@ import Tkinter as tk
 import tkMessageBox
 import tkFileDialog
 
+
+def find_mdb_files(directory, exception):
+    mdb_files = []
+    # Get all .mdb files
+    for root, dirnames, filenames in os.walk(directory):
+        if any(x in root.lower() for x in exception):  # To detect and skip file/trig folder
+            break
+        [dirnames.remove(d) for d in dirnames if any(x in os.path.join(root, d).lower() for x in
+                                                     exception)]  # To skip file if they contain file/trig in absolute path
+        for filename in filenames:
+            if filename.endswith('.mdb'):
+                mdb_files.append(os.path.join(root, filename))
+    return mdb_files
+
+
 # Function to start processing
 def process_mdb_files():
     folder_path = folder_path_entry.get().strip()
@@ -13,8 +28,8 @@ def process_mdb_files():
     if not folder_path or not os.path.isdir(folder_path):
         tkMessageBox.showerror("Error", "Invalid or empty directory! Please enter a valid path.")
         return
-
-    mdb_files = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.endswith(".mdb")]
+    exception=["merged"]
+    mdb_files = find_mdb_files(folder_path,exception)
 
     if len(mdb_files) < 2:
         tkMessageBox.showwarning("Warning", "Need at least two .mdb files for overlap checking. Found: {}".format(len(mdb_files)))

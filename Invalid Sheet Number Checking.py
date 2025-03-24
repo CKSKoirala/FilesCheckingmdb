@@ -11,6 +11,20 @@ dict_scale = {
 }
 
 
+def find_mdb_files(directory, exception):
+    mdb_files = []
+    # Get all .mdb files
+    for root, dirnames, filenames in os.walk(directory):
+        if any(x in root.lower() for x in exception):  # To detect and skip file/trig folder
+            break
+        [dirnames.remove(d) for d in dirnames if any(x in os.path.join(root, d).lower() for x in
+                                                     exception)]  # To skip file if they contain file/trig in absolute path
+        for filename in filenames:
+            if filename.endswith('.mdb'):
+                mdb_files.append(os.path.join(root, filename))
+    return mdb_files
+
+
 # Function to check data and generate a report
 def check_data_and_generate_report(mdb_folder, selected_scale):
     # Get corresponding value for selected scale
@@ -27,33 +41,32 @@ def check_data_and_generate_report(mdb_folder, selected_scale):
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
+        exception = ["merged"]
+
+        mdb_files = find_mdb_files(mdb_folder,exception)
         # Iterate through all .mdb files in the folder
-        for root, _, filenames in os.walk(mdb_folder):
-            for filename in filenames:
-                if filename.endswith('.mdb'):
-                    mdb_path = os.path.join(root, filename)
+        for mdb_path in mdb_files:
+            try:
+                parcelfile = os.path.join(mdb_path, "Parcel")
 
-                    try:
-                        parcelfile = os.path.join(mdb_path, "Parcel")
+                with arcpy.da.SearchCursor(parcelfile, ['PARCELNO', 'GRIDS1']) as cursor:
+                    for row in cursor:
+                        parcel_no = row[0]
+                        grids1 = str(row[1])  # Ensure GRIDS1 is treated as a string
 
-                        with arcpy.da.SearchCursor(parcelfile, ['PARCELNO', 'GRIDS1']) as cursor:
-                            for row in cursor:
-                                parcel_no = row[0]
-                                grids1 = str(row[1])  # Ensure GRIDS1 is treated as a string
+                        # Check if GRIDS1 starts with the correct scale value
+                        if not grids1.startswith(scale_value):
+                            status = "Invalid GRIDS1 (does not match selected scale)"
 
-                                # Check if GRIDS1 starts with the correct scale value
-                                if not grids1.startswith(scale_value):
-                                    status = "Invalid GRIDS1 (does not match selected scale)"
-
-                                    # Write only invalid data to the report
-                                    writer.writerow({
-                                        'MDB File Path': mdb_path,
-                                        'PARCELNO': parcel_no,
-                                        'GRIDS1': grids1,
-                                        'Status': status
-                                    })
-                    except Exception as e:
-                        print("Error processing {}: {}".format(mdb_path, e))
+                            # Write only invalid data to the report
+                            writer.writerow({
+                                'MDB File Path': mdb_path,
+                                'PARCELNO': parcel_no,
+                                'GRIDS1': grids1,
+                                'Status': status
+                            })
+            except Exception as e:
+                print("Error processing {}: {}".format(mdb_path, e))
 
     messagebox.showinfo("Report Generation", "Invalid data report generated successfully.")
 

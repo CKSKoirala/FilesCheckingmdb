@@ -15,13 +15,15 @@ def find_mdb_files(directory, exception):
     mdb_files = []
     # Get all .mdb files
     for root, dirnames, filenames in os.walk(directory):
-        if any(x in root.lower() for x in exception):  # To detect and skip file/trig folder
-            break
-        [dirnames.remove(d) for d in dirnames if any(x in os.path.join(root, d).lower() for x in
-                                                     exception)]  # To skip file if they contain file/trig in absolute path
+        if any(x in root.lower() for x in exception):  # Skip directories in exception list
+            continue  # Use continue instead of break
+
+        dirnames[:] = [d for d in dirnames if not any(x in os.path.join(root, d).lower() for x in exception)]  # Exclude subdirectories
+
         for filename in filenames:
-            if filename.endswith('.mdb'):
+            if filename.endswith('.mdb') and not any(x in os.path.join(root, filename).lower() for x in exception):  # Ensure files are excluded
                 mdb_files.append(os.path.join(root, filename))
+
     return mdb_files
 
 

@@ -26,9 +26,9 @@ class DuplicateParcelsValidator:
         if not mdb_files:
             raise ValueError("No MDB files found in the specified folder")
 
-        with open(output_csv, 'wb') as csvfile:
+        with open(output_csv, 'wb') as csvfile:  # Use 'wb' for Python 2
             writer = csv.writer(csvfile)
-            writer.writerow(["Source File", "Parcel Number", "Frequency"])
+            writer.writerow(["Source File", "WARDNO", "GRIDS1", "PARCELNO", "Frequency"])
 
             for mdb in mdb_files:
                 try:
@@ -43,12 +43,15 @@ class DuplicateParcelsValidator:
                             continue
 
                         frequency_table = "in_memory/frequency_table"
-                        arcpy.Frequency_analysis(full_path, frequency_table, ["PARCELNO"])
 
-                        with arcpy.da.SearchCursor(frequency_table, ["PARCELNO", "FREQUENCY"]) as cursor:
+                        # Consider duplicates based on WARDNO, GRIDS1, and PARCELNO
+                        arcpy.Frequency_analysis(full_path, frequency_table, ["WARDNO", "GRIDS1", "PARCELNO"])
+
+                        with arcpy.da.SearchCursor(frequency_table,
+                                                   ["WARDNO", "GRIDS1", "PARCELNO", "FREQUENCY"]) as cursor:
                             for row in cursor:
-                                if row[0] != 0 and row[1] > 1:  # Skip parcel number 0
-                                    writer.writerow([full_path, row[0], row[1]])
+                                if row[2] != 0 and row[3] > 1:  # Skip parcel number 0
+                                    writer.writerow([full_path, row[0], row[1], row[2], row[3]])
 
                         if arcpy.Exists(frequency_table):
                             arcpy.Delete_management(frequency_table)

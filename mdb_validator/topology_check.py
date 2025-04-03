@@ -2,6 +2,7 @@
 import os
 import arcpy
 import csv
+import shutil
 from datetime import datetime
 
 
@@ -204,8 +205,8 @@ class ParcelOverlapValidator(object):
             # Clean up temporary feature class and cadastre dataset
             arcpy.Delete_management(error_fc)
             cadastre_dataset = os.path.join(mdb_path, "Cadastre")
-            # if arcpy.Exists(cadastre_dataset):
-            #     arcpy.Delete_management(cadastre_dataset)
+            if arcpy.Exists(cadastre_dataset):
+                arcpy.Delete_management(cadastre_dataset)
 
             return csv_path, shp_path, overlap_count
 

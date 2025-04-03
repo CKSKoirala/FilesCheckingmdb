@@ -11,7 +11,7 @@ from invalid_ward import InvalidWardValidator
 from overlaps import OverlapsValidator
 from segment_counts import SegmentCountsValidator
 from sheet_number import SheetNumberValidator
-
+from topology_check import ParcelOverlapValidator
 
 class MDBValidatorApp:
     def __init__(self, root):
@@ -27,7 +27,8 @@ class MDBValidatorApp:
             ("Invalid Ward Numbers", InvalidWardValidator()),
             ("Feature Overlaps", OverlapsValidator()),
             ("Segment Counts", SegmentCountsValidator()),
-            ("Sheet Number Check", SheetNumberValidator())
+            ("Sheet Number Check", SheetNumberValidator()),
+            ("Parcel Overlaps", ParcelOverlapValidator())
         ]
 
         # Configure style

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
+import string
+
 import arcpy
 import csv
 import shutil
@@ -124,11 +126,16 @@ class ParcelOverlapValidator(object):
             # Create output directory for this MDB
             file_path = mdb_path
             base_name = os.path.splitext(os.path.basename(mdb_path))[0]
+            # Clean the base_name to remove invalid characters
+            valid_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
+            clean_base_name = ''.join(c for c in base_name if c in valid_chars)
+            clean_base_name = clean_base_name.replace(' ', '_')  # Replace spaces with underscores
+
             mdb_output_folder = os.path.join(self.output_folder, base_name)
 
             # Clean up existing output folder if it exists
             if os.path.exists(mdb_output_folder):
-                self._update_status("  Cleaning up existing output folder...")
+                self._update_status(" Cleaning up existing output folder...")
                 for root, dirs, files in os.walk(mdb_output_folder, topdown=False):
                     for name in files:
                         try:
@@ -147,14 +154,13 @@ class ParcelOverlapValidator(object):
                     return None, None, 0
 
             # Create fresh output folder
-            os.makedirs(mdb_output_folder)
+            if not os.path.exists(mdb_output_folder):
+                os.makedirs(mdb_output_folder)
 
-            # Prepare output paths
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             csv_path = os.path.join(mdb_output_folder,
-                                    "{}_Overlaps_{}.csv".format(base_name, timestamp))
+                                    "{}_Overlaps.csv".format(clean_base_name))
             shp_path = os.path.join(mdb_output_folder,
-                                    "{}_Overlaps_{}.shp".format(base_name, timestamp))
+                                    "{}_Overlaps.shp".format(clean_base_name))
 
             # Get original parcel attributes
             parcel_data = {}
@@ -204,7 +210,7 @@ class ParcelOverlapValidator(object):
                         overlap_count += 1
 
             # Clean up temporary feature class
-            arcpy.Delete_management(error_fc)
+            #arcpy.Delete_management(error_fc)
 
             # Only delete cadastre dataset if keep_topology is False
             if not self.keep_topology:

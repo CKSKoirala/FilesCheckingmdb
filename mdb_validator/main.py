@@ -12,6 +12,8 @@ from overlaps import OverlapsValidator
 from segment_counts import SegmentCountsValidator
 from sheet_number import SheetNumberValidator
 from topology_check import ParcelOverlapValidator
+# Add this to your imports
+from ttk import Progressbar
 
 
 class MDBValidatorApp:
@@ -73,6 +75,12 @@ class MDBValidatorApp:
                                    bg=self.colors['primary'], fg='white',
                                    font=('Helvetica', 10, 'bold'))
         self.status_bar.pack(side='bottom', fill='x')
+
+
+        # Add progress bar below the status bar
+        self.progress = Progressbar(root, orient='horizontal',
+                                  length=300, mode='determinate')
+        self.progress.pack(side='bottom', fill='x', pady=(0,5))
 
         # Set status var for all validators
         for name, validator in self.validators:
@@ -288,6 +296,18 @@ class MDBValidatorApp:
             tkMessageBox.showerror("Error", "Invalid folder path!")
             return
 
+        # Reset progress bar
+        self.progress['value'] = 0
+        self.root.update_idletasks()
+
+        # Count how many validations we'll run
+        total_validations = sum(var.get() for var in self.validator_vars)
+        if total_validations == 0:
+            tkMessageBox.showerror("Error", "No validations selected!")
+            return
+
+        progress_increment = 100.0 / total_validations
+
         # Update validator parameters
         for i, (name, validator) in enumerate(self.validators):
             if self.validator_vars[i].get() == 1:
@@ -323,6 +343,10 @@ class MDBValidatorApp:
                 except Exception as e:
                     self.status_var.set("Error in {}: {}".format(name, str(e)))
                     tkMessageBox.showerror("Error", "Failed to run {}:\n{}".format(name, str(e)))
+
+        # Complete progress bar
+        self.progress['value'] = 100
+        self.root.update_idletasks()
 
         self.status_var.set("Completed {} of {} selected validations".format(
             success_count, sum(var.get() for var in self.validator_vars)))

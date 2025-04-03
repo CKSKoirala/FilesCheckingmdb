@@ -14,6 +14,7 @@ class ParcelOverlapValidator(object):
         self.output_folder = ""
         self.report_prefix = "Parcel_Overlap_Report"
         self.cluster_tolerance = "0.001 Meters"
+        self.keep_topology = False  # Default to delete topology
 
     def set_parameters(self, folder_path, parcel_layer_name="Parcel", output_folder=None):
         self.folder_path = folder_path
@@ -202,11 +203,16 @@ class ParcelOverlapValidator(object):
                         )
                         overlap_count += 1
 
-            # Clean up temporary feature class and cadastre dataset
+            # Clean up temporary feature class
             arcpy.Delete_management(error_fc)
-            cadastre_dataset = os.path.join(mdb_path, "Cadastre")
-            if arcpy.Exists(cadastre_dataset):
-                arcpy.Delete_management(cadastre_dataset)
+
+            # Only delete cadastre dataset if keep_topology is False
+            if not self.keep_topology:
+                cadastre_dataset = os.path.join(mdb_path, "Cadastre")
+                if arcpy.Exists(cadastre_dataset):
+                    arcpy.Delete_management(cadastre_dataset)
+            else:
+                self._update_status("  Keeping topology layer as requested")
 
             return csv_path, shp_path, overlap_count
 

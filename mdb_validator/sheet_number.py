@@ -12,7 +12,7 @@ except ImportError:
     print("pathlib not found. Trying to install...")
     try:
         subprocess.call(["python", "-m", "pip", "install", "pathlib"])
-        import psutil  # Try importing again after installation
+        from pathlib import Path
     except ImportError:
         pathlib_available = False  # If installation fails, disable the button
 

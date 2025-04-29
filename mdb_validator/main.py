@@ -37,17 +37,26 @@ class MDBValidatorApp:
             'button_text_highlight': '#000000'  # Black for highlighted buttons
         }
 
-        # Initialize validators list
-        self.validators = [
+        # Initialize validators list organized by sheet type
+        self.free_sheet_validators = [
+            ("Invalid Sheet Numbers", InvalidSheetValidator()),
+            ("Invalid Ward Numbers", InvalidWardValidator())
+        ]
+
+        self.trig_sheet_validators = [
+            ("Sheet Number Check", SheetNumberValidator())
+        ]
+
+        self.common_validators = [
             ("Duplicate Parcels", DuplicateParcelsValidator()),
             ("Small Areas", SmallAreasValidator()),
-            ("Invalid Sheet Numbers", InvalidSheetValidator()),
-            ("Invalid Ward Numbers", InvalidWardValidator()),
-            ("Feature Overlaps", OverlapsValidator()),
             ("Segment Counts", SegmentCountsValidator()),
-            ("Sheet Number Check", SheetNumberValidator()),
             ("Parcel Overlaps (Topology)", ParcelOverlapValidator())
         ]
+
+
+        # Combine all validators for easy access
+        self.all_validators = self.free_sheet_validators + self.trig_sheet_validators + self.common_validators
 
         # Configure styles
         self.configure_styles()
@@ -83,7 +92,7 @@ class MDBValidatorApp:
         self.progress.pack(side='bottom', fill='x', pady=(0,5))
 
         # Set status var for all validators
-        for name, validator in self.validators:
+        for _, validator in self.all_validators:
             validator.set_status_var(self.status_var)
 
     def configure_styles(self):
@@ -181,7 +190,7 @@ class MDBValidatorApp:
 
         # Default template path
         note_label = ttk.Label(input_frame,
-                               text="Note: Gridsheets should be in D:\\Python\\Trig sheet test\\Templets",
+                               text="Note: Gridsheets should be inside 'templates' folder where the scripts is located",
                                font=('Helvetica', 8, 'italic'))
         note_label.pack(anchor='w')
 
@@ -217,17 +226,46 @@ class MDBValidatorApp:
         validators_frame = ttk.LabelFrame(self.main_frame, text="Select Validations to Run", padding=10)
         validators_frame.pack(fill='both', expand=True, pady=5)
 
-        # Create checkboxes for each validator
-        self.validator_vars = []
-        check_frame = ttk.Frame(validators_frame)
-        check_frame.pack(fill='both', expand=True)
+        # Create a frame to hold the three columns
+        columns_frame = ttk.Frame(validators_frame)
+        columns_frame.pack(fill='both', expand=True)
 
-        for i, (name, validator) in enumerate(self.validators):
+        # Create three columns
+        free_sheet_frame = ttk.LabelFrame(columns_frame, text="Free Sheet Validations", padding=5)
+        free_sheet_frame.pack(side='left', fill='both', expand=True, padx=5)
+
+        trig_sheet_frame = ttk.LabelFrame(columns_frame, text="Trig Sheet Validations", padding=5)
+        trig_sheet_frame.pack(side='left', fill='both', expand=True, padx=5)
+
+        common_frame = ttk.LabelFrame(columns_frame, text="Common Validations", padding=5)
+        common_frame.pack(side='left', fill='both', expand=True, padx=5)
+
+        # Create checkboxes for each validator in their respective columns
+        self.validator_vars = []
+
+        # Free Sheet validators
+        for i, (name, validator) in enumerate(self.free_sheet_validators):
             var = tk.IntVar(value=1)
             self.validator_vars.append(var)
-            cb = ttk.Checkbutton(check_frame, text=name, variable=var,
+            cb = ttk.Checkbutton(free_sheet_frame, text=name, variable=var,
                                  style='TCheckbutton')
-            cb.grid(row=i // 2, column=i % 2, sticky='w', padx=5, pady=2)
+            cb.pack(anchor='w', padx=5, pady=2)
+
+        # Trig Sheet validators
+        for i, (name, validator) in enumerate(self.trig_sheet_validators):
+            var = tk.IntVar(value=1)
+            self.validator_vars.append(var)
+            cb = ttk.Checkbutton(trig_sheet_frame, text=name, variable=var,
+                                 style='TCheckbutton')
+            cb.pack(anchor='w', padx=5, pady=2)
+
+        # Common validators
+        for i, (name, validator) in enumerate(self.common_validators):
+            var = tk.IntVar(value=1)
+            self.validator_vars.append(var)
+            cb = ttk.Checkbutton(common_frame, text=name, variable=var,
+                                 style='TCheckbutton')
+            cb.pack(anchor='w', padx=5, pady=2)
 
         # Button frame
         btn_frame = ttk.Frame(validators_frame)
@@ -309,7 +347,7 @@ class MDBValidatorApp:
         progress_increment = 100.0 / total_validations
 
         # Update validator parameters
-        for i, (name, validator) in enumerate(self.validators):
+        for i, (name, validator) in enumerate(self.all_validators):
             if self.validator_vars[i].get() == 1:
                 validator.set_folder_path(folder_path)
 
@@ -328,7 +366,7 @@ class MDBValidatorApp:
 
         # Run selected validations
         success_count = 0
-        for i, (name, validator) in enumerate(self.validators):
+        for i, (name, validator) in enumerate(self.all_validators):
             if self.validator_vars[i].get() == 1:
                 try:
                     self.status_var.set("Running {}...".format(name))

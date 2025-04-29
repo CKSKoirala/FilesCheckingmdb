@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
+from pathlib import Path
 import arcpy
 import csv
 from utils import find_mdb_files
-
+import sys
 
 class SheetNumberValidator:
     def __init__(self):
@@ -26,7 +27,13 @@ class SheetNumberValidator:
         if not self.gridsheet:
             raise ValueError("Gridsheet not set")
 
-        gridsheet_path = os.path.join("D:\\check_clean\\FilesCheckingmdb\\templates", self.gridsheet)
+        # Detect if running as script or bundled as .exe
+        if getattr(sys, 'frozen', False):
+            base_path = Path(sys.executable).parent
+        else:
+            base_path = Path(__file__).parent
+
+        gridsheet_path = os.path.join(base_path,"templates", self.gridsheet)
         if not arcpy.Exists(gridsheet_path):
             raise ValueError("Gridsheet not found at: {}".format(gridsheet_path))
 

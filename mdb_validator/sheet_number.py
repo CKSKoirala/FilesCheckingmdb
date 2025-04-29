@@ -1,10 +1,20 @@
 # -*- coding: utf-8 -*-
 import os
-from pathlib import Path
 import arcpy
 import csv
 from utils import find_mdb_files
 import sys
+import subprocess
+pathlib_available = True
+try:
+    from pathlib import Path
+except ImportError:
+    print("pathlib not found. Trying to install...")
+    try:
+        subprocess.call(["python", "-m", "pip", "install", "pathlib"])
+        import psutil  # Try importing again after installation
+    except ImportError:
+        pathlib_available = False  # If installation fails, disable the button
 
 class SheetNumberValidator:
     def __init__(self):
@@ -28,10 +38,13 @@ class SheetNumberValidator:
             raise ValueError("Gridsheet not set")
 
         # Detect if running as script or bundled as .exe
-        if getattr(sys, 'frozen', False):
-            base_path = Path(sys.executable).parent
+        if pathlib_available:
+            if getattr(sys, 'frozen', False):
+                base_path = Path(sys.executable).parent
+            else:
+                base_path = Path(__file__).parent
         else:
-            base_path = Path(__file__).parent
+            base_path=base_path = os.path.dirname(os.path.abspath(__file__))
 
         gridsheet_path = os.path.join(base_path,"templates", self.gridsheet)
         if not arcpy.Exists(gridsheet_path):

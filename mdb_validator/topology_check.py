@@ -17,18 +17,23 @@ class ParcelOverlapValidator(object):
         self.report_prefix = "Parcel_Overlap_Report"
         self.cluster_tolerance = "0.001 Meters"
         self.keep_topology = False  # Default to delete topology
+        print("[__init__] Initialized ParcelOverlapValidator")
 
     def set_parameters(self, folder_path, parcel_layer_name="Parcel", output_folder=None):
         self.folder_path = folder_path
         self.parcel_layer_name = parcel_layer_name
         self.output_folder = output_folder if output_folder else os.path.join(folder_path, "Overlap_Reports")
+        print("[set_parameters] Parameters set: folder_path = {}, parcel_layer_name = {}, output_folder = {}".format(
+            folder_path, parcel_layer_name, self.output_folder))
 
     def set_status_var(self, status_var):
         self.status_var = status_var
+        print("[set_status_var] Status variable set.")
 
     def set_folder_path(self, folder_path):
         """For compatibility with existing framework"""
         self.set_parameters(folder_path)
+        print("[set_folder_path] Folder path set: {}".format(folder_path))
 
     def _update_status(self, message):
         if self.status_var:
@@ -41,6 +46,7 @@ class ParcelOverlapValidator(object):
             for f in files:
                 if f.lower().endswith('.mdb'):
                     mdb_files.append(os.path.join(root, f))
+        print("[_find_mdb_files] Found {} MDB files".format(len(mdb_files)))
         return mdb_files
 
     def _get_feature_classes(self, mdb_path):
@@ -48,6 +54,7 @@ class ParcelOverlapValidator(object):
             arcpy.env.workspace = mdb_path
             return arcpy.ListFeatureClasses()
         except:
+            print("[_get_feature_classes] Error getting feature classes from: {}".format(mdb_path))
             return []
 
     def _prepare_feature_dataset(self, mdb_path):
@@ -72,10 +79,12 @@ class ParcelOverlapValidator(object):
             # Use CopyFeatures_management instead of FeatureClassToFeatureClass_conversion
             arcpy.CopyFeatures_management(os.path.join(mdb_path, "Parcel"), parcel_in_dataset)
 
+            print("[_prepare_feature_dataset] Feature dataset prepared for MDB: {}".format(mdb_path))
             return cadastre_dataset
 
         except Exception as e:
             self._update_status("Error preparing feature dataset: {}".format(str(e)))
+            print("[_prepare_feature_dataset] Error: {}".format(str(e)))
             return None
 
     def _create_topology(self, mdb_path):
@@ -111,13 +120,16 @@ class ParcelOverlapValidator(object):
             error_fc = os.path.join(cadastre_dataset, "temp_overlap_errors")
             arcpy.ExportTopologyErrors_management(topology, cadastre_dataset, "temp_overlap_errors")
 
+            print("[_create_topology] Topology created and errors exported for MDB: {}".format(mdb_path))
             return error_fc + "_poly"  # ArcGIS appends _poly to the output
 
         except arcpy.ExecuteError:
             self._update_status("Topology Error: {}".format(arcpy.GetMessages(2)))
+            print("[_create_topology] Topology Error: {}".format(arcpy.GetMessages(2)))
             return None
         except Exception as e:
             self._update_status("Topology Creation Error: {}".format(str(e)))
+            print("[_create_topology] Error: {}".format(str(e)))
             return None
 
     def _generate_outputs(self, mdb_path, error_fc):
@@ -142,15 +154,18 @@ class ParcelOverlapValidator(object):
                             os.remove(os.path.join(root, name))
                         except Exception as e:
                             self._update_status("    Failed to delete file {}: {}".format(name, str(e)))
+                            print("[_generate_outputs] Failed to delete file {}: {}".format(name, str(e)))
                     for name in dirs:
                         try:
                             os.rmdir(os.path.join(root, name))
                         except Exception as e:
                             self._update_status("    Failed to delete directory {}: {}".format(name, str(e)))
+                            print("[_generate_outputs] Failed to delete directory {}: {}".format(name, str(e)))
                 try:
                     os.rmdir(mdb_output_folder)
                 except Exception as e:
                     self._update_status("  Failed to delete output folder: {}".format(str(e)))
+                    print("[_generate_outputs] Failed to delete output folder: {}".format(str(e)))
                     return None, None, 0
 
             # Create fresh output folder
@@ -209,6 +224,7 @@ class ParcelOverlapValidator(object):
                         )
                         overlap_count += 1
 
+            print("[_generate_outputs] Generated outputs for MDB: {}".format(mdb_path))
             # Clean up temporary feature class
             #arcpy.Delete_management(error_fc)
 
@@ -224,6 +240,7 @@ class ParcelOverlapValidator(object):
 
         except Exception as e:
             self._update_status("Output Generation Error: {}".format(str(e)))
+            print("[_generate_outputs] Error: {}".format(str(e)))
             return None, None, 0
 
     def run_validation(self):
@@ -282,31 +299,17 @@ class ParcelOverlapValidator(object):
 
             except Exception as e:
                 self._update_status("  Error processing {}: {}".format(os.path.basename(mdb), str(e)))
+                print("Error processing {}: {}".format(os.path.basename(mdb), str(e)))
 
         # Create summary
-        summary_path = os.path.join(self.output_folder, "Topology_Validation_Summary.txt")
+        summary_path = os.path.join(self.output_folder, "{}_Summary.txt".format(self.report_prefix))
         with open(summary_path, 'w') as f:
-            f.write("PARCEL OVERLAP VALIDATION SUMMARY (TOPOLOGY METHOD)\n")
-            f.write("=" * 60 + "\n")
-            f.write("Date: {}\n".format(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-            f.write("Source Folder: {}\n".format(self.folder_path))
-            f.write("Parcel Layer Name: {}\n".format(self.parcel_layer_name))
-            f.write("MDB Files Processed: {}\n".format(len(mdb_files)))
-            f.write("Files with Overlaps: {}\n".format(len(reports)))
-            f.write("Total Overlaps Found: {}\n".format(total_overlaps))
-            f.write("\nOutput Location: {}\n".format(self.output_folder))
-            f.write("\nDetailed Reports:\n")
-            for r in reports:
-                f.write("- {}\n".format(os.path.basename(r)))
-            f.write("\nShapefiles:\n")
-            for s in shapefiles:
-                f.write("- {}\n".format(os.path.basename(s)))
+            f.write("Parcel Overlap Validation Summary\n")
+            f.write("Processed {} MDB files\n".format(len(mdb_files)))
+            f.write("Found {} overlaps\n".format(total_overlaps))
+            f.write("Reports generated at:\n")
+            for report in reports:
+                f.write("{}\n".format(report))
 
-            self._update_status("\nTopology validation complete!")
-            self._update_status("{} reports generated in: {}".format(len(reports), self.output_folder))
-            self._update_status("Summary file: {}".format(summary_path))
-
-            if self.status_var:
-                self.status_var.set("Parcel topology validation completed")
-
-        return reports, shapefiles
+        self._update_status("Validation complete. Summary report: {}".format(summary_path))
+        print("[run_validation] Validation complete. Summary report generated.")

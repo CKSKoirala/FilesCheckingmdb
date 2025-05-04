@@ -67,7 +67,7 @@ class SheetNumberValidator:
         mdb_files = find_mdb_files(self.folder_path)
         print("[sheet_number] Found {} MDB files".format(len(mdb_files)))
 
-        for mdb in mdb_files:
+        for index, mdb in enumerate(mdb_files, start=1):
             parcel_path = os.path.join(mdb, "Parcel")
             if not arcpy.Exists(parcel_path):
                 print("[sheet_number] Parcel not found in {}".format(mdb))
@@ -77,7 +77,7 @@ class SheetNumberValidator:
                 mdb_name = os.path.basename(mdb)
                 if self.status_var:
                     self.status_var.set("Processing {}...".format(mdb_name))
-                print("[sheet_number] Processing {}".format(mdb_name))
+                print("[sheet_number] Processing ({}/{}) {}".format(index, len(mdb_files), base_name))
 
                 intersect_shp = os.path.join(output_dir, "Intersect.shp")
                 if arcpy.Exists(intersect_shp):

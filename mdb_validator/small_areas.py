@@ -35,12 +35,12 @@ class SmallAreasValidator:
             writer = csv.writer(csvfile)
             writer.writerow(["Source File", "Feature Class", "Parcel Number", "ParFID", "Area (sq.m)"])
 
-            for mdb in mdb_files:
+            for index, mdb in enumerate(mdb_files, start=1):
                 try:
                     mdb_name = os.path.basename(mdb)
                     if self.status_var:
                         self.status_var.set("Processing {}...".format(mdb_name))
-                    print("[small_areas] Processing {}".format(mdb_name))
+                    print("[small_areas] Processing ({}/{}) {}".format(index, len(mdb_files), mdb_name))
 
                     features = get_feature_classes(mdb, ["Parcel", "Construction"])
                     print("[small_areas] Found {} relevant feature classes in {}".format(len(features), mdb_name))

@@ -36,13 +36,13 @@ class SegmentCountsValidator:
             writer = csv.writer(csvfile)
             writer.writerow(["Source File", "Feature Class", "Segments Count"])
 
-            for mdb in mdb_files:
+            for index, mdb in enumerate(mdb_files, start=1):
                 try:
                     base_name = os.path.basename(mdb)
                     if self.status_var:
-                        self.status_var.set("Processing {}...".format(base_name))
+                        self.status_var.set("[segments_count] Processing ({}/{}) {}".format(index, len(mdb_files), base_name))
 
-                    print("[segments_count] Processing {}".format(base_name))
+                    print("[segments_count] Processing ({}/{}) {}".format(index, len(mdb_files), base_name))
                     segments = get_feature_classes(mdb, ["Segments"])
                     print("[segments_count] Found {} 'Segments' feature classes".format(len(segments)))
 

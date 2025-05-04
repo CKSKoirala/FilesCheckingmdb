@@ -21,18 +21,18 @@ class DuplicateParcelsValidator:
         self.folder_path = folder_path
 
     def run_validation(self):
-        print("[run_validation] Starting duplicate parcel validation")
+        print("[duplicate_parcels] Starting duplicate parcel validation")
 
         if not self.folder_path:
-            raise ValueError("[run_validation] Folder path not set")
+            raise ValueError("[duplicate_parcels] Folder path not set")
 
         output_csv = os.path.join(self.folder_path, "duplicate_parcels_report.csv")
         mdb_files = find_mdb_files(self.folder_path)
 
         if not mdb_files:
-            raise ValueError("[run_validation] No MDB files found in the specified folder")
+            raise ValueError("[duplicate_parcels] No MDB files found in the specified folder")
 
-        print("[run_validation] Found {} MDB files".format(len(mdb_files)))
+        print("[duplicate_parcels] Found {} MDB files".format(len(mdb_files)))
 
         with open(output_csv, 'wb') as csvfile:
             writer = csv.writer(csvfile)
@@ -46,20 +46,20 @@ class DuplicateParcelsValidator:
                     if self.status_var:
                         self.status_var.set("Processing ({}/{}) {}".format(index, total_mdb, base_name))
 
-                    print("[run_validation] Processing ({}/{}) {}...".format(index, total_mdb, base_name))
+                    print("[duplicate_parcels] Processing ({}/{}) {}...".format(index, total_mdb, base_name))
 
                     parcels = get_feature_classes(mdb, ["Parcel"])
-                    print("[run_validation] Found {} Parcel feature classes in {}".format(len(parcels), base_name))
+                    print("[duplicate_parcels] Found {} Parcel feature classes in {}".format(len(parcels), base_name))
 
                     for fc_name, full_path in parcels:
-                        print("[run_validation] Checking feature class: {}".format(fc_name))
+                        print("[duplicate_parcels] Checking feature class: {}".format(fc_name))
 
                         if arcpy.Describe(full_path).shapeType != "Polygon":
-                            print("[run_validation] Skipping non-polygon feature class: {}".format(fc_name))
+                            print("[duplicate_parcels] Skipping non-polygon feature class: {}".format(fc_name))
                             continue
 
                         frequency_table = "in_memory/freq_" + uuid.uuid4().hex
-                        print("[run_validation] Running Frequency_analysis on: {}".format(fc_name))
+                        print("[duplicate_parcels] Running Frequency_analysis on: {}".format(fc_name))
 
                         arcpy.Frequency_analysis(full_path, frequency_table, ["WARDNO", "GRIDS1", "PARCELNO"])
 
@@ -71,10 +71,10 @@ class DuplicateParcelsValidator:
 
                         if arcpy.Exists(frequency_table):
                             arcpy.Delete_management(frequency_table)
-                            print("[run_validation] Deleted in-memory frequency table")
+                            print("[duplicate_parcels] Deleted in-memory frequency table")
 
                 except Exception as e:
-                    error_message = "[run_validation] Error processing {}: {}".format(mdb, str(e))
+                    error_message = "[duplicate_parcels] Error processing {}: {}".format(mdb, str(e))
                     if self.status_var:
                         self.status_var.set(error_message)
                     print(error_message)
@@ -83,4 +83,4 @@ class DuplicateParcelsValidator:
         if self.status_var:
             self.status_var.set("Duplicate parcels validation completed")
 
-        print("[run_validation] Duplicate parcels validation completed")
+        print("[duplicate_parcels] Duplicate parcels validation completed")

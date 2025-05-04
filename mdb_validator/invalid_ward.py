@@ -20,19 +20,19 @@ class InvalidWardValidator:
         self.folder_path = folder_path
 
     def run_validation(self):
-        print("[run_validation] Starting validation process")
+        print("[invalid_ward] Starting validation process")
 
         if not self.folder_path:
-            raise ValueError("[run_validation] Folder path not set")
+            raise ValueError("[invalid_ward] Folder path not set")
 
         output_csv = os.path.join(self.folder_path, "invalid_ward_numbers_report.csv")
         mdb_files = find_mdb_files(self.folder_path)
         valid_wards = set(str(i) for i in range(1, 10))
 
         if not mdb_files:
-            raise ValueError("[run_validation] No MDB files found in the specified folder")
+            raise ValueError("[invalid_ward] No MDB files found in the specified folder")
 
-        print("[run_validation] Found {} MDB files".format(len(mdb_files)))
+        print("[invalid_ward] Found {} MDB files".format(len(mdb_files)))
 
         with open(output_csv, 'wb') as csvfile:
             writer = csv.writer(csvfile)
@@ -44,10 +44,10 @@ class InvalidWardValidator:
                     if self.status_var:
                         self.status_var.set("Processing ({}/{}) {}".format(index, len(mdb_files), base_name))
 
-                    print("[run_validation] Processing ({}/{}) {}".format(index, len(mdb_files), base_name))
+                    print("[invalid_ward] Processing ({}/{}) {}".format(index, len(mdb_files), base_name))
 
                     parcels = get_feature_classes(mdb, ["Parcel"])
-                    print("[run_validation] Found {} Parcel feature classes in {}".format(len(parcels), base_name))
+                    print("[invalid_ward] Found {} Parcel feature classes in {}".format(len(parcels), base_name))
 
                     for fc_name, full_path in parcels:
                         with arcpy.da.SearchCursor(full_path, ["PARCELNO", "WARDNO"]) as cursor:
@@ -57,7 +57,7 @@ class InvalidWardValidator:
                                     writer.writerow([mdb, row[0], row[1]])
 
                 except Exception as e:
-                    error_message = "[run_validation] Error processing {}: {}".format(mdb, str(e))
+                    error_message = "[invalid_ward] Error processing {}: {}".format(mdb, str(e))
                     if self.status_var:
                         self.status_var.set(error_message)
                     print(error_message)
@@ -66,4 +66,4 @@ class InvalidWardValidator:
         if self.status_var:
             self.status_var.set("Invalid ward numbers validation completed")
 
-        print("[run_validation] Invalid ward numbers validation completed")
+        print("[invalid_ward] Invalid ward numbers validation completed")

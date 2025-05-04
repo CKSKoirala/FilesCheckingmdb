@@ -38,12 +38,12 @@ class SheetNumberValidator:
         self.gridsheet = gridsheet
 
     def run_validation(self):
-        print("[run_validation] Starting sheet number validation")
+        print("[sheet_number] Starting sheet number validation")
 
         if not self.folder_path:
-            raise ValueError("[run_validation] Folder path not set")
+            raise ValueError("[sheet_number] Folder path not set")
         if not self.gridsheet:
-            raise ValueError("[run_validation] Gridsheet not set")
+            raise ValueError("[sheet_number] Gridsheet not set")
 
         if pathlib_available:
             if getattr(sys, 'frozen', False):
@@ -54,42 +54,42 @@ class SheetNumberValidator:
             base_path = os.path.dirname(os.path.abspath(__file__))
 
         gridsheet_path = os.path.join(base_path, "templates", self.gridsheet)
-        print("[run_validation] Using gridsheet at: {}".format(gridsheet_path))
+        print("[sheet_number] Using gridsheet at: {}".format(gridsheet_path))
 
         if not arcpy.Exists(gridsheet_path):
-            raise ValueError("[run_validation] Gridsheet not found at: {}".format(gridsheet_path))
+            raise ValueError("[sheet_number] Gridsheet not found at: {}".format(gridsheet_path))
 
         output_dir = os.path.join(self.folder_path, "SheetNumberReports")
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-            print("[run_validation] Created output directory: {}".format(output_dir))
+            print("[sheet_number] Created output directory: {}".format(output_dir))
 
         mdb_files = find_mdb_files(self.folder_path)
-        print("[run_validation] Found {} MDB files".format(len(mdb_files)))
+        print("[sheet_number] Found {} MDB files".format(len(mdb_files)))
 
         for mdb in mdb_files:
             parcel_path = os.path.join(mdb, "Parcel")
             if not arcpy.Exists(parcel_path):
-                print("[run_validation] Parcel not found in {}".format(mdb))
+                print("[sheet_number] Parcel not found in {}".format(mdb))
                 continue
 
             try:
                 mdb_name = os.path.basename(mdb)
                 if self.status_var:
                     self.status_var.set("Processing {}...".format(mdb_name))
-                print("[run_validation] Processing {}".format(mdb_name))
+                print("[sheet_number] Processing {}".format(mdb_name))
 
                 intersect_shp = os.path.join(output_dir, "Intersect.shp")
                 if arcpy.Exists(intersect_shp):
                     arcpy.Delete_management(intersect_shp)
-                    print("[run_validation] Deleted previous intersect shapefile")
+                    print("[sheet_number] Deleted previous intersect shapefile")
 
                 arcpy.Intersect_analysis([gridsheet_path, parcel_path], intersect_shp, "ALL")
-                print("[run_validation] Created intersection shapefile")
+                print("[sheet_number] Created intersection shapefile")
 
                 fields = [f.name for f in arcpy.ListFields(intersect_shp)]
                 if "PageNumber" not in fields:
-                    msg = "[run_validation] PageNumber field missing in {}".format(intersect_shp)
+                    msg = "[sheet_number] PageNumber field missing in {}".format(intersect_shp)
                     print(msg)
                     if self.status_var:
                         self.status_var.set(msg)
@@ -107,10 +107,10 @@ class SheetNumberValidator:
                             if str(row[0]) != str(row[1]):
                                 writer.writerow([parcel_path, row[2], row[3], row[4], row[0], row[1]])
                                 mismatch_count += 1
-                        print("[run_validation] Found {} mismatches in {}".format(mismatch_count, mdb_name))
+                        print("[sheet_number] Found {} mismatches in {}".format(mismatch_count, mdb_name))
 
             except Exception as e:
-                error_msg = "[run_validation] Error processing {}: {}".format(mdb, str(e))
+                error_msg = "[sheet_number] Error processing {}: {}".format(mdb, str(e))
                 print(error_msg)
                 if self.status_var:
                     self.status_var.set(error_msg)
@@ -118,4 +118,4 @@ class SheetNumberValidator:
 
         if self.status_var:
             self.status_var.set("Sheet number validation completed")
-        print("[run_validation] Sheet number validation completed")
+        print("[sheet_number] Sheet number validation completed")

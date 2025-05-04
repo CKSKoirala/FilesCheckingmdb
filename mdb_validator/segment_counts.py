@@ -20,17 +20,17 @@ class SegmentCountsValidator:
         self.folder_path = folder_path
 
     def run_validation(self):
-        print("[run_validation] Starting segment counts validation")
+        print("[segments_count] Starting segment counts validation")
 
         if not self.folder_path:
-            raise ValueError("[run_validation] Folder path not set")
+            raise ValueError("[segments_count] Folder path not set")
 
         output_csv = os.path.join(self.folder_path, "segment_counts_report.csv")
         mdb_files = find_mdb_files(self.folder_path)
-        print("[run_validation] Found {} MDB files".format(len(mdb_files)))
+        print("[segments_count] Found {} MDB files".format(len(mdb_files)))
 
         if not mdb_files:
-            raise ValueError("[run_validation] No MDB files found in the specified folder")
+            raise ValueError("[segments_count] No MDB files found in the specified folder")
 
         with open(output_csv, 'wb') as csvfile:
             writer = csv.writer(csvfile)
@@ -42,21 +42,21 @@ class SegmentCountsValidator:
                     if self.status_var:
                         self.status_var.set("Processing {}...".format(base_name))
 
-                    print("[run_validation] Processing {}".format(base_name))
+                    print("[segments_count] Processing {}".format(base_name))
                     segments = get_feature_classes(mdb, ["Segments"])
-                    print("[run_validation] Found {} 'Segments' feature classes".format(len(segments)))
+                    print("[segments_count] Found {} 'Segments' feature classes".format(len(segments)))
 
                     for fc_name, full_path in segments:
                         shape_type = arcpy.Describe(full_path).shapeType
                         if shape_type == "Polyline":
                             count = int(arcpy.GetCount_management(full_path)[0])
-                            print("[run_validation] {} has {} segments".format(fc_name, count))
+                            print("[segments_count] {} has {} segments".format(fc_name, count))
                             writer.writerow([full_path, fc_name, count])
                         else:
-                            print("[run_validation] Skipping {} (not Polyline)".format(fc_name))
+                            print("[segments_count] Skipping {} (not Polyline)".format(fc_name))
 
                 except Exception as e:
-                    error_msg = "[run_validation] Error processing {}: {}".format(mdb, str(e))
+                    error_msg = "[segments_count] Error processing {}: {}".format(mdb, str(e))
                     print(error_msg)
                     if self.status_var:
                         self.status_var.set(error_msg)
@@ -64,4 +64,4 @@ class SegmentCountsValidator:
 
         if self.status_var:
             self.status_var.set("Segment counts validation completed")
-        print("[run_validation] Segment counts validation completed")
+        print("[segments_count] Segment counts validation completed")

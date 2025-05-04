@@ -312,4 +312,4 @@ class ParcelOverlapValidator(object):
                 f.write("{}\n".format(report))
 
         self._update_status("Validation complete. Summary report: {}".format(summary_path))
-        print("[run_validation] Validation complete. Summary report generated.")
+        print("[topology_check] Validation complete. Summary report generated.")

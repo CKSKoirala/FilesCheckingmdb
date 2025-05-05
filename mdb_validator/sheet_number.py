@@ -59,7 +59,7 @@ class SheetNumberValidator:
         if not arcpy.Exists(gridsheet_path):
             raise ValueError("[sheet_number] Gridsheet not found at: {}".format(gridsheet_path))
 
-        output_dir = os.path.join(self.folder_path, "SheetNumberReports")
+        output_dir = os.path.join(self.folder_path, "03_SheetNumberReports")
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
             print("[sheet_number] Created output directory: {}".format(output_dir))
@@ -77,7 +77,7 @@ class SheetNumberValidator:
                 mdb_name = os.path.basename(mdb)
                 if self.status_var:
                     self.status_var.set("Processing {}...".format(mdb_name))
-                print("[sheet_number] Processing ({}/{}) {}".format(index, len(mdb_files), base_name))
+                print("[sheet_number] Processing ({}/{}) {}".format(index, len(mdb_files), mdb))
 
                 intersect_shp = os.path.join(output_dir, "Intersect.shp")
                 if arcpy.Exists(intersect_shp):
@@ -95,7 +95,7 @@ class SheetNumberValidator:
                         self.status_var.set(msg)
                     continue
 
-                mismatch_csv = os.path.join(output_dir, "Mismatch_{}.csv".format(mdb_name))
+                mismatch_csv = os.path.join(output_dir, "03_Mismatch_{}.csv".format(mdb_name))
                 with open(mismatch_csv, 'wb') as csvfile:
                     writer = csv.writer(csvfile)
                     writer.writerow(["Source", "WARDNO", "FID_Parcel", "PARCELNO", "PageNumber", "GRIDS1"])

@@ -40,7 +40,7 @@ class InvalidSheetValidator:
         if not scale_value:
             raise ValueError("[invalid_sheet] Invalid scale value: {}".format(self.scale))
 
-        output_csv = os.path.join(self.folder_path, "invalid_sheet_numbers_report.csv")
+        output_csv = os.path.join(self.folder_path, "01_invalid_sheet_numbers_report.csv")
         mdb_files = find_mdb_files(self.folder_path)
 
         if not mdb_files:

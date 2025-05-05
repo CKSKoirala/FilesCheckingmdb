@@ -24,7 +24,7 @@ class SmallAreasValidator:
         if not self.folder_path:
             raise ValueError("[small_areas] Folder path not set")
 
-        output_csv = os.path.join(self.folder_path, "small_areas_report.csv")
+        output_csv = os.path.join(self.folder_path, "05_small_areas_report.csv")
         mdb_files = find_mdb_files(self.folder_path)
         print("[small_areas] Found {} MDB files".format(len(mdb_files)))
 

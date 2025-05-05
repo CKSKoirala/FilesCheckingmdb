@@ -14,6 +14,7 @@ from sheet_number import SheetNumberValidator
 from topology_check import ParcelOverlapValidator
 # Add this to your imports
 from ttk import Progressbar
+from invalid_parcelnum import InvalidParcelNumValidator
 
 
 class MDBValidatorApp:
@@ -51,6 +52,7 @@ class MDBValidatorApp:
             ("Duplicate Parcels", DuplicateParcelsValidator()),
             ("Small Areas", SmallAreasValidator()),
             ("Segment Counts", SegmentCountsValidator()),
+            ("Invalid Parcel Number", InvalidParcelNumValidator()),
             ("Parcel Overlaps (Topology)", ParcelOverlapValidator())
         ]
 
@@ -132,7 +134,7 @@ class MDBValidatorApp:
                          fg=self.colors['primary'])
         title.pack(side='left')
 
-        version = tk.Label(header_frame, text="Version 2.0",
+        version = tk.Label(header_frame, text="Version 2.1",
                            font=('Helvetica', 10),
                            bg=self.colors['background'],
                            fg=self.colors['text'])

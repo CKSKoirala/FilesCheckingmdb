@@ -31,7 +31,7 @@ class OverlapsValidator:
         if len(mdb_files) < 2:
             raise ValueError("[overlaps] Need at least 2 MDB files for overlap checking")
 
-        output_csv = os.path.join(self.folder_path, "overlap_report.csv")
+        output_csv = os.path.join(self.folder_path, "08_overlap_report.csv")
         valid_fcs = ["Parcel", "Construction", "Segments"]
         feature_files = []
 

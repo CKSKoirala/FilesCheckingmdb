@@ -25,7 +25,7 @@ class SegmentCountsValidator:
         if not self.folder_path:
             raise ValueError("[segments_count] Folder path not set")
 
-        output_csv = os.path.join(self.folder_path, "segment_counts_report.csv")
+        output_csv = os.path.join(self.folder_path, "06_segment_counts_report.csv")
         mdb_files = find_mdb_files(self.folder_path)
         print("[segments_count] Found {} MDB files".format(len(mdb_files)))
 

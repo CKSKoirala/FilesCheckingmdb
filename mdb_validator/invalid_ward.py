@@ -25,7 +25,7 @@ class InvalidWardValidator:
         if not self.folder_path:
             raise ValueError("[invalid_ward] Folder path not set")
 
-        output_csv = os.path.join(self.folder_path, "invalid_ward_numbers_report.csv")
+        output_csv = os.path.join(self.folder_path, "02_invalid_ward_numbers_report.csv")
         mdb_files = find_mdb_files(self.folder_path)
         valid_wards = set(str(i) for i in range(1, 10))
 

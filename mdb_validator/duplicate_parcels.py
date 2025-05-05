@@ -26,7 +26,7 @@ class DuplicateParcelsValidator:
         if not self.folder_path:
             raise ValueError("[duplicate_parcels] Folder path not set")
 
-        output_csv = os.path.join(self.folder_path, "duplicate_parcels_report.csv")
+        output_csv = os.path.join(self.folder_path, "04_duplicate_parcels_report.csv")
         mdb_files = find_mdb_files(self.folder_path)
 
         if not mdb_files:

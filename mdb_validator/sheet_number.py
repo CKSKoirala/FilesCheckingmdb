@@ -53,7 +53,7 @@ class SheetNumberValidator:
         else:
             base_path = os.path.dirname(os.path.abspath(__file__))
 
-        gridsheet_path = os.path.join(base_path, "templates", self.gridsheet)
+        gridsheet_path = base_path / "templates" / self.gridsheet
         print("[sheet_number] Using gridsheet at: {}".format(gridsheet_path))
 
         if not arcpy.Exists(gridsheet_path):
@@ -84,7 +84,7 @@ class SheetNumberValidator:
                     arcpy.Delete_management(intersect_shp)
                     print("[sheet_number] Deleted previous intersect shapefile")
 
-                arcpy.Intersect_analysis([gridsheet_path, parcel_path], intersect_shp, "ALL")
+                arcpy.Intersect_analysis([str(gridsheet_path), str(parcel_path)], intersect_shp, "ALL")
                 print("[sheet_number] Created intersection shapefile")
 
                 fields = [f.name for f in arcpy.ListFields(intersect_shp)]

@@ -267,7 +267,7 @@ class ParcelOverlapValidator(object):
         for index, mdb in enumerate(mdb_files, start=1):
             try:
                 self._update_status("\nProcessing: {}".format(os.path.basename(mdb)))
-                print("[topology_check] Processing ({}/{}) {}".format(index, len(mdb_files), base_name))
+                print("[topology_check] Processing ({}/{}) {}".format(index, len(mdb_files), mdb_files))
 
                 # Check if parcel layer exists
                 feature_classes = self._get_feature_classes(mdb)

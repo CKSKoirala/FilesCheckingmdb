@@ -8,7 +8,7 @@ import tkFileDialog
 
 def find_mdb_files(directory, exception):
     mdb_files = []
-    # Get all .mdb files
+    # Get mdb_validator .mdb files
     for root, dirnames, filenames in os.walk(directory):
         if any(x in root.lower() for x in exception):  # Skip directories in exception list
             continue  # Use continue instead of break

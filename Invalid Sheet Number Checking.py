@@ -13,7 +13,7 @@ dict_scale = {
 
 def find_mdb_files(directory, exception):
     mdb_files = []
-    # Get all .mdb files
+    # Get mdb_validator .mdb files
     for root, dirnames, filenames in os.walk(directory):
         if any(x in root.lower() for x in exception):  # Skip directories in exception list
             continue  # Use continue instead of break
@@ -46,7 +46,7 @@ def check_data_and_generate_report(mdb_folder, selected_scale):
         exception = ["merged"]
 
         mdb_files = find_mdb_files(mdb_folder,exception)
-        # Iterate through all .mdb files in the folder
+        # Iterate through mdb_validator .mdb files in the folder
         for mdb_path in mdb_files:
             try:
                 parcelfile = os.path.join(mdb_path, "Parcel")

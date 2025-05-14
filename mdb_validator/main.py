@@ -8,6 +8,7 @@ from duplicate_parcels import DuplicateParcelsValidator
 from small_areas import SmallAreasValidator
 from invalid_sheet import InvalidSheetValidator
 from invalid_ward import InvalidWardValidator
+from duplicate_const_and_segments import DuplicateConstAndSegmentsValidator
 from overlaps import OverlapsValidator
 from segment_counts import SegmentCountsValidator
 from sheet_number import SheetNumberValidator
@@ -50,6 +51,7 @@ class MDBValidatorApp:
 
         self.common_validators = [
             ("Duplicate Parcels", DuplicateParcelsValidator()),
+            ("Duplicate Segment & Const", DuplicateConstAndSegmentsValidator()),
             ("Small Areas", SmallAreasValidator()),
             ("Segment Counts", SegmentCountsValidator()),
             ("Invalid Parcel Number", InvalidParcelNumValidator()),

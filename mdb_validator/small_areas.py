@@ -61,7 +61,7 @@ class SmallAreasValidator:
                             min_area = 5
                         else:  # Construction
                             field_list = ["ParFID", "Shape_Area"]
-                            min_area = 0.5
+                            min_area = 5
 
                         small_count = 0
                         with arcpy.da.SearchCursor(full_path, field_list) as cursor:

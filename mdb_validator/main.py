@@ -13,6 +13,7 @@ from overlaps import OverlapsValidator
 from segment_counts import SegmentCountsValidator
 from sheet_number import SheetNumberValidator
 from topology_check import ParcelOverlapValidator
+from suspicious_column import SuspiciousColumnValidator
 # Add this to your imports
 from ttk import Progressbar
 from invalid_parcelnum import InvalidParcelNumValidator
@@ -55,7 +56,8 @@ class MDBValidatorApp:
             ("Small Areas", SmallAreasValidator()),
             ("Segment Counts", SegmentCountsValidator()),
             ("Invalid Parcel Number", InvalidParcelNumValidator()),
-            ("Parcel Overlaps (Topology)", ParcelOverlapValidator())
+            ("Parcel Overlaps (Topology)", ParcelOverlapValidator()),
+            ("Suspicious Column", SuspiciousColumnValidator())
         ]
 
 

@@ -27,7 +27,7 @@ class InvalidWardValidator:
 
         output_csv = os.path.join(self.folder_path, "02_invalid_ward_numbers_report.csv")
         mdb_files = find_mdb_files(self.folder_path)
-        valid_wards = set(str(i) for i in range(1, 10))
+        valid_wards = set(str(i) for i in range(1, 10)) | set("{:02}".format(i) for i in range(1, 10))
 
         if not mdb_files:
             raise ValueError("[invalid_ward] No MDB files found in the specified folder")
